@@ -23,7 +23,6 @@ var centralHeaderA = new Uint8Array([
 	0x00, 0x00, // last mod file time (00:00:00)
 	0x00, 0x21, // last mod file date (1980/01/01)
 	0x00, 0x00, 0x00, 0x00, // crc-32
-	0x00, 0x00, 0x00, 0x00, // compressed size
 ]);
 
 var centralHeaderB = new Uint8Array([
@@ -64,8 +63,9 @@ function zip(type, entries) {
 	var central = [];
 	var position = 0;
 	for (var entry of entries) {
+		var size = encodeLong(entry.data.length);
 		local.push(localHeaderA, entry.data);
-		central.push(centralHeaderA, encodeLong(entry.data.length), encodeShort(entry.name.length), centralHeaderB, encodeLong(position), entry.name);
+		central.push(centralHeaderA, size, size, encodeShort(entry.name.length), centralHeaderB, encodeLong(position), entry.name);
 		position += localHeaderA.byteLength + entry.data.length;
 	}
 	var end = [endRecordA, encodeLong(position), endRecordB];
